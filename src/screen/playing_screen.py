@@ -3,7 +3,7 @@ from pygame.locals import KEYUP, MOUSEBUTTONUP
 
 from .screen import Screen
 from ..sudoku import Difficulty, Sudoku, SudokuGuiWrapper
-from ..utils import Button
+from ..utils import Button, Timer
 
 
 CENTERX = 765 + (1200-765)/2
@@ -20,14 +20,14 @@ class PlayingScreen(Screen):
         self.__sudoku_wrapper = SudokuGuiWrapper(
             Sudoku(difficulty=difficulty), topleft=(0, 0)
         )
-
+        self.__timer = Timer(size=(250, 100), top=135, centerx=CENTERX)
         self.__main_menu_button = Button(
             "MAIN MENU", size=(250, 100), bottom=765, centerx=CENTERX)
         self.__reset_button = Button("RESET", size=(
             250, 100), fg_color="red", bottom=615, centerx=CENTERX)
 
         self.__all_sprites = pygame.sprite.RenderPlain(
-            self.__sudoku_wrapper, self.__reset_button, self.__main_menu_button
+            self.__sudoku_wrapper, self.__timer, self.__reset_button, self.__main_menu_button
         )
 
     def display(self) -> None:
@@ -49,12 +49,14 @@ class PlayingScreen(Screen):
             if event.type == KEYUP:
                 self.__sudoku_wrapper.handle_key_event(event.key)
                 if self.__sudoku_wrapper.sudoku.is_solved():
-                    self.game.screen = CongratsScreen(self.game)
+                    self.game.screen = CongratsScreen(
+                        self.game, self.__timer.get_elapsed_time())
                     return
 
             if event.type == MOUSEBUTTONUP:
                 if self.__reset_button.is_hovered():
                     self.__sudoku_wrapper.sudoku.reset()
+                    self.__timer.reset()
                 elif self.__main_menu_button.is_hovered():
                     self.game.screen = TitleScreen(self.game)
                     return
