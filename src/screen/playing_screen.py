@@ -13,6 +13,7 @@ class PlayingScreen(Screen):
     """
     The screen shown when user is solving a puzzle.
     """
+
     def __init__(self, game, difficulty: Difficulty) -> None:
         super().__init__(game)
 
@@ -20,8 +21,10 @@ class PlayingScreen(Screen):
             Sudoku(difficulty=difficulty), topleft=(0, 0)
         )
 
-        self.__main_menu_button = Button("MAIN MENU", size=(250, 100), bottom=765, centerx=CENTERX)
-        self.__reset_button = Button("RESET", size=(250, 100), bottom=615, centerx=CENTERX)
+        self.__main_menu_button = Button(
+            "MAIN MENU", size=(250, 100), bottom=765, centerx=CENTERX)
+        self.__reset_button = Button("RESET", size=(
+            250, 100), fg_color="red", bottom=615, centerx=CENTERX)
 
         self.__all_sprites = pygame.sprite.RenderPlain(
             self.__sudoku_wrapper, self.__reset_button, self.__main_menu_button

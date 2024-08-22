@@ -9,11 +9,14 @@ class TitleScreen(Screen):
     """
     The title screen shown at the start of the game.
     """
+
     def __init__(self, game) -> None:
         super().__init__(game)
 
-        self.__new_game_button = Button("NEW GAME", size=(250, 100), right=550, top=550)
-        self.__quit_button = Button("QUIT", size=(250, 100), left=650, top=550)
+        self.__new_game_button = Button(
+            "NEW GAME", size=(250, 100), right=550, top=550)
+        self.__quit_button = Button("QUIT", size=(
+            250, 100), fg_color="red", left=650, top=550)
 
         self.__all_sprites = pygame.sprite.RenderPlain(
             self.__new_game_button, self.__quit_button
