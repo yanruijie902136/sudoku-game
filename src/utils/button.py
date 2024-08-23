@@ -5,9 +5,6 @@ from pygame.locals import QUIT
 class Button(pygame.sprite.Sprite):
     """
     Rectangular button that inverts colors when the mouse is hovering over it.
-
-    All buttons are black and white, and use Futura system font with size 30 to
-    display their texts (subject to change).
     """
 
     def __init__(
