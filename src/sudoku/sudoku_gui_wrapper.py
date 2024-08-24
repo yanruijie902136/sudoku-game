@@ -18,7 +18,7 @@ from pygame.locals import (
     K_UP,
 )
 
-from .sudoku import Sudoku
+from .sudoku import CellPos, Sudoku
 
 
 CELL_SIZE = 70
@@ -28,12 +28,55 @@ MARGIN_SIZE = (900 - GRID_SIZE) / 2
 EDIT_KEYS = [K_BACKSPACE, K_1, K_2, K_3, K_4, K_5, K_6, K_7, K_8, K_9]
 
 
+class Action:
+    def __init__(self, sudoku: Sudoku, pos: CellPos, digit: Optional[int]) -> None:
+        self.__sudoku = sudoku
+        self.__pos = pos
+        self.__old_digit = sudoku.get(pos)
+        self.__new_digit = digit
+
+    def execute(self) -> None:
+        self.__sudoku.set(self.__pos, self.__new_digit)
+
+    def undo(self) -> None:
+        self.__sudoku.set(self.__pos, self.__old_digit)
+
+
+class ActionStack:
+    def __init__(self) -> None:
+        self.__actions: list[Action] = []
+        self.__current = -1     # Index of the last executed action.
+
+    def push(self, action: Action) -> None:
+        self.__current += 1
+        self.__actions = self.__actions[:self.__current]
+        self.__actions.append(action)
+        action.execute()
+
+    def undo(self) -> None:
+        if self.__current < 0:
+            return
+        self.__actions[self.__current].undo()
+        self.__current -= 1
+
+    def redo(self) -> None:
+        if self.__current + 1 >= len(self.__actions):
+            return
+        self.__current += 1
+        self.__actions[self.__current].execute()
+
+    def reset(self) -> None:
+        self.__actions.clear()
+        self.__current = -1
+
+
 class SudokuGuiWrapper(pygame.sprite.Sprite):
     """
     Display a Sudoku puzzle on the monitor. The cell selected by user (if any)
     is highlighted. The other cells belonging to the same group as the selected
     cell are also highlighted but with a different color.
     """
+
     def __init__(self, sudoku: Sudoku, **kwargs) -> None:
         pygame.sprite.Sprite.__init__(self)
 
@@ -59,6 +102,8 @@ class SudokuGuiWrapper(pygame.sprite.Sprite):
         self.__pos: Optional[tuple[int, int]] = None   # The selected cell position.
 
         self.font = pygame.font.SysFont("Futura", size=30)
+
+        self.__action_stack = ActionStack()
 
     def update(self) -> None:
         self.image.fill("white")
@@ -108,7 +153,8 @@ class SudokuGuiWrapper(pygame.sprite.Sprite):
 
         try:
             index = EDIT_KEYS.index(key)
-            self.sudoku.set(self.__pos, digit=(None if index == 0 else index))
+            digit = None if index == 0 else index
+            self.__action_stack.push(Action(self.__sudoku, self.__pos, digit))
             return
         except:
             pass
@@ -123,6 +169,16 @@ class SudokuGuiWrapper(pygame.sprite.Sprite):
         elif key == K_RIGHT:
             col = (col + 1) % 9
         self.__pos = row, col
+
+    def undo(self) -> None:
+        self.__action_stack.undo()
+
+    def redo(self) -> None:
+        self.__action_stack.redo()
+
+    def reset(self) -> None:
+        self.__sudoku.reset()
+        self.__action_stack.reset()
 
     def __choose_cell_color(self, row: int, col: int) -> str:
         """

@@ -17,5 +17,4 @@ and a Sudoku puzzle will appear on your screen.
 
 ## TODOs
 
-- Add undo and redo operations.
 - Add Sudoku variants such as Killer Sudoku or Jigsaw Sudoku.
