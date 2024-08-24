@@ -9,6 +9,7 @@ class SelectScreen(Screen):
     """
     The screen where user select difficulty of a new Sudoku puzzle.
     """
+
     def __init__(self, game) -> None:
         super().__init__(game)
 
@@ -23,7 +24,7 @@ class SelectScreen(Screen):
     def display(self) -> None:
         self.game.surface.fill("white")
 
-        font = pygame.font.SysFont("Futura", size=70)
+        font = pygame.font.SysFont("Futura", size=80)
         text = font.render("DIFFICULTY", True, "black")
         text_rect = text.get_rect(center=(600, 400))
         self.game.surface.blit(text, text_rect)
